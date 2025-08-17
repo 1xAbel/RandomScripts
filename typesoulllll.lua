@@ -1,35 +1,36 @@
-getgenv().autoWebhook = true
+getgenv().disc_url = ''
 
-local sent = {}
-local HttpService = game:GetService("HttpService")
+local function webHook(url, item)
+    local url = url
 
-local function webHook(item)
     local data = {
         ["username"] = "lazy hub | type soul",
+        ["content"] = "",
         ["embeds"] = {
             {
-                ["title"] = "**afk drop**",
-                ["description"] = "**User** : ||"..game.Players.LocalPlayer.Name.."||\n**Drop** : "..item,
+                ["title"] = "afk drop",
+                ["description"] = "User : ||"..game.Players.LocalPlayer.Name.."||\nDrop : "..item,
                 ["type"] = "rich",
                 ["color"] = tonumber(0x7269da),
             }
         }
     }
-    local newdata = HttpService:JSONEncode(data)
+
+    local newdata = game:GetService("HttpService"):JSONEncode(data)
+
     local headers = {["content-type"] = "application/json"}
-    local requestFunc = http_request or request or HttpPost or syn.request
-    requestFunc({Url = getgenv().disc_url, Body = newdata, Method = "POST", Headers = headers})
+    request = http_request or request or HttpPost
+    local webhook = {Url = url, Body = newdata, Method = "POST", Headers = headers}
+    request(webhook)
 end
 
-while getgenv().autoWebhook do task.wait()
-    local pg = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    for _, obj in ipairs(pg:GetDescendants()) do -- might be laggy!!! 
-        if (obj:IsA("TextLabel") or obj:IsA("TextButton")) and obj.Text:match("obtained%.") then
-            if not sent[obj] then
-                sent[obj] = true
-                webHook(obj.Text)
-            end
-        end
+getgenv().outputWebhooks = true
+local lp = game.Players.LocalPlayer
+repeat task.wait() until lp.PlayerGui.ScreenEffects:WaitForChild("TextScroller")
+local textScrolling = lp.PlayerGui.ScreenEffects:WaitForChild("TextScroller")
+textScrolling.ChildAdded:Connect(function(v)
+    if getgenv().outputWebhooks then else return end
+    if v.Name == "Notification" and v.Text:match("obtained") then
+        webHook(getgenv().disc_url, v.Text)
     end
-end
-
+end)
