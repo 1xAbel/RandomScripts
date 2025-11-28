@@ -1,3 +1,5 @@
+repeat task.wait() until game:IsLoaded()
+
 local repo = "https://raw.githubusercontent.com/deividcomsono/Obsidian/main/"
 local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
 local ThemeManager = loadstring(game:HttpGet(repo .. "addons/ThemeManager.lua"))()
@@ -80,6 +82,35 @@ local misc = Tabs.Main:AddRightGroupbox("Misc", "boxes")
 
 
 main:AddToggle("MyToggle", {
+	Text = "Auto Farm Meteor",
+	Tooltip = nil,
+	DisabledTooltip = "I am disabled!",
+
+	Default = false,
+	Disabled = false,
+	Visible = true,
+	Risky = false,
+
+	Callback = function(Value)
+		getgenv().farm_method = Value
+        while farm_method do task.wait()
+            for _, meteor in ipairs(meteorsFolder:GetChildren()) do
+                local core = meteor:FindFirstChild("Core")
+                if core and core:IsA("BasePart") then
+                    local prompt = core:FindFirstChildOfClass("ProximityPrompt")
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = core.CFrame
+                    if prompt then
+                        local dist = (hrp.Position - core.Position).Magnitude
+                        if dist < triggerRadius then
+                            fireproximityprompt(prompt)
+                        end
+                    end
+                end
+            end
+        end
+	end,
+})
+main:AddToggle("MyToggle", {
 	Text = "Meteor ESP",
 	Tooltip = nil,
 	DisabledTooltip = "I am disabled!",
@@ -121,7 +152,7 @@ main:AddToggle("MyToggle", {
         end
 	end,
 })
-local MyButton = misc:AddButton({
+local MyButton = main:AddButton({
 	Text = "Teleport to Meteor (Might get kicked)",
 	Func = function()
         for _, meteor in ipairs(meteorsFolder:GetChildren()) do
@@ -159,7 +190,7 @@ local MyButton = misc:AddButton({
         end
     
         if #servers > 0 then
-            --queue
+            queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/1xAbel/RandomScripts/main/bladebaygame.lua'))()")
             TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
         else
             return warn("Serverhop: Couldn't find a server.")
@@ -174,7 +205,6 @@ local MyButton = misc:AddButton({
 	Visible = true,
 	Risky = true,
 })
-
 
 task.spawn(function()
     while true do task.wait(0.1)
@@ -199,6 +229,7 @@ end)
 game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
     if child.Name == 'ErrorPrompt' and child:FindFirstChild('MessageArea') and child.MessageArea:FindFirstChild("ErrorFrame") then
         local mainGame = 16228276182
+        queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/1xAbel/RandomScripts/main/bladebaygame.lua'))()")
         wait(1)
         game:GetService("TeleportService"):Teleport(mainGame, game.Players.LocalPlayer)
     end
