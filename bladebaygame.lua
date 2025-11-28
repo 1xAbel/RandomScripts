@@ -159,7 +159,7 @@ local MyButton = misc:AddButton({
         end
     
         if #servers > 0 then
-            queue
+            --queue
             TeleportService:TeleportToPlaceInstance(PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
         else
             return warn("Serverhop: Couldn't find a server.")
